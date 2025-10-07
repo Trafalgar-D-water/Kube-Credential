@@ -1,0 +1,29 @@
+{
+  "name": "verification-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --exec 'node --loader ts-node/esm' src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.7.0",
+    "@types/sqlite3": "^3.1.11",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "ts-jest": "^29.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,35 +1,29 @@
 import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import {open} from 'sqlite';
 import path from 'path'
-import { fileURLToPath } from 'url';
-import { mkdir } from 'fs/promises'; 
+import {fileURLToPath} from 'url'
+import { mkdir } from 'fs/promises';
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
+const DB_PATH = path.join(__dirname , '../../data/certifications.sqlite')
 
-// This path points to the shared volume that Kubernetes will provide.
-// const DB_PATH = path.join('/data/certifications.sqlite');
-//local dev -----
-const DB_PATH = path.join(__dirname, '../../data/certifications.sqlite');
-console.log(DB_PATH , 'DB_PATH')
-export async function initializeDatabase() {
-    // Ensure the /data directory exists within the container.
-    try {
-        await mkdir(path.dirname(DB_PATH), { recursive: true });
+export async function initializeDatabase(){
+    try{
+        await mkdir(path.dirname(DB_PATH) , {recursive : true})
     }
-    catch (err) {
+    catch(err){
         throw new Error('something went wrong while connecting to db')
     }
 
     const db = await open({
-        filename: DB_PATH,
-        driver: sqlite3.Database
+        filename : DB_PATH,
+        driver : sqlite3.Database
     })
 
-    // if no table present in  db create one >-<
     await db.exec(`
         CREATE TABLE IF NOT EXISTS certifications (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,5 +38,6 @@ export async function initializeDatabase() {
         )
       `);
 
-    return db;
+      return db;
 }
+
