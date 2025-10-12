@@ -52,6 +52,9 @@ app.post('/verify' , async (req : Request , res : Response) =>{
 })
 
 
-if ((import.meta as any).url === process.argv[1] || (import.meta as any).main) {
-  app.listen(PORT, () => console.log(`Verification service listening on port ${PORT}`));
-}
+app.listen(PORT, () => {
+    console.log(`Issuance service listening on port ${PORT}`)
+}).on('error', (err) => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+});
