@@ -18,7 +18,8 @@ ENV NODE_ENV=production
 
 COPY --from=base /prod_node_modules ./node_modules
 COPY package*.json ./
-COPY dist ./dist
+COPY --from=base /app/build ./dist
+
 
 ENV PORT=8080
 ENV PGSSLMODE=require
