@@ -1,3 +1,15 @@
+## 📞 Contact
+
+- **Name**: Priyanshu patnayak
+- **Email**: patnayakpriyanshu@gmail.com
+- **Phone**: 6263675331
+
+## 📤 Submission
+
+- **Google Drive Link**: https://drive.google.com/file/d/1NE9Lf5CRRs3qIZHTA5dXbsuv4ugltsLQ/view?usp=drive_link
+- **Frontend URL**:https://kube-credential-self.vercel.app/
+- **Backend URLs**:https://github.com/Trafalgar-D-water/Kube-Credential/tree/main/Backend
+
 # Kube Credential
 
 A modern, microservice-based digital credential issuance and verification system built with Node.js, React, PostgreSQL, and Kubernetes.
@@ -298,16 +310,3 @@ The application features:
 - Responsive design for all screen sizes
 - Professional error handling
 
-## 📞 Contact
-
-- **Name**: [Your Name]
-- **Email**: [your.email@example.com]
-- **Phone**: [Your Phone Number]
-
-## 📤 Submission
-
-- **Google Drive Link**: [Your submission link]
-- **Frontend URL**: [Your Vercel deployment URL]
-- **Backend URLs**: [Your Render service URLs]
-- **Screenshots**: [Include successful issuance/verification screenshots]
-- **Documentation**: [Include setup and deployment documentation]
