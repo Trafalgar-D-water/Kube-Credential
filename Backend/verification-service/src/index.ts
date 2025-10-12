@@ -1,30 +1,43 @@
+import 'dotenv/config';
 import express from 'express';
 import type {Request , Response} from "express";
 import {initializeDatabase} from './database.js'
+import cors from 'cors'
 
-const app = express();
+export const app = express();
 app.use(express.json())
+app.use(cors())
 
 const PORT = process.env.PORT || 8081;
+const POD_NAME = process.env.HOSTNAME || 'local-worker'
+
+app.get('/health', (_req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok', worker: POD_NAME });
+});
 
 app.post('/verify' , async (req : Request , res : Response) =>{
     const {employeeId ,certificationCode} = req.body
+    console.log(req.body , 'req.body in verifcation service')
     if(!employeeId || !certificationCode){
         return res.status(400).json({messsage : 'employeeId and certificationCode are required.'})
     }
 
     const db = await initializeDatabase();
+    console.log( db , 'db in verifcation service')
 
     try{
-        const sql = `SELECT issuedBy, timestamp FROM certifications WHERE employeeId = ? AND certificationCode = ?`;
-        const cert = await db.get(sql, [employeeId, certificationCode]);
+        const sql = `SELECT issuedBy, timestamp FROM certifications WHERE employeeId = $1 AND certificationCode = $2`;
+        const result = await db.query(sql, [employeeId, certificationCode]);
+        console.log(result , 'result in verifcation service')
+        const cert = result.rows?.[0];
+        console.log(cert , 'cert in verifcation service')
         if(cert){
             res.status(200).json({
                 verified: true,
                 message: 'Certification is valid.',
                 details: {
                     issuedBy: cert.issuedBy,
-                    timestamp: new Date(cert.timestamp).toISOString()
+                    timestamp: new Date(parseInt(cert.timestamp)).toISOString()
                 }
             });
         }
@@ -33,9 +46,12 @@ app.post('/verify' , async (req : Request , res : Response) =>{
         }
     }
     catch(err : any){
+        console.log(err , 'err in verifcation service')
         res.status(500).json({ message: 'Database error', error: err.message });
     }
 })
 
 
-app.listen(PORT, () => console.log(`Verification service listening on port ${PORT}`));
+if ((import.meta as any).url === process.argv[1] || (import.meta as any).main) {
+  app.listen(PORT, () => console.log(`Verification service listening on port ${PORT}`));
+}

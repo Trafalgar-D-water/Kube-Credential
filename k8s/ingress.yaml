@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kube-credential-ingress
+  namespace: kube-credential
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /issue
+            pathType: Prefix
+            backend:
+              service:
+                name: issuance-service
+                port:
+                  number: 80
+          - path: /verify
+            pathType: Prefix
+            backend:
+              service:
+                name: verification-service
+                port:
+                  number: 80
+
