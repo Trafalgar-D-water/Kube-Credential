@@ -8,7 +8,6 @@ export const app = express();
 app.use(cors());
 app.use(express.json())
 
-
 const PORT = process.env.PORT || 8080;
 const POD_NAME = process.env.HOSTNAME || 'local-worker'
 
@@ -38,16 +37,17 @@ app.post('/issue', async (req: Request, res: Response) => {
             return res.status(409).json({ message: 'This certification has already been issued to this employee.' });
         }
         res.status(500).json({ message: 'Database error', error: err.message });
-
     }
 })
 
 app.get('/', (req, res) => {
     res.send('Hello from the Issuance Service!');
-  });
+});
 
-if ((import.meta as any).url === process.argv[1] || (import.meta as any).main) {
-    app.listen(PORT, () => {
-        console.log(`Issuance service listening on port ${PORT}`)
-    })
-}
+// REMOVE THE CONDITIONAL - ALWAYS START THE SERVER
+app.listen(PORT, () => {
+    console.log(`Issuance service listening on port ${PORT}`)
+}).on('error', (err) => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+});
