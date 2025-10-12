@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import type { Request, Response } from "express"
 import { initializeDatabase } from './database.js'
@@ -17,7 +18,6 @@ app.get('/health', (_req: Request, res: Response) => {
 
 app.post('/issue', async (req: Request, res: Response) => {
     const { employeeId, employeeName, certificationCode, certificationName, issuingManager } = req.body
-    console.log(req.body , 'req.body')
     if (!employeeId || !employeeName || !certificationCode) {
         return res.status(400).json({ message: 'some fileds are missing daa' });
     }

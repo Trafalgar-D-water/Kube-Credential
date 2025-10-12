@@ -1,6 +1,9 @@
 import { Pool } from 'pg';
 
-const connectionString = process.env.DATABASE_URL || "postgresql://cube_kayy_user:z5iHIZ78gZqFoDjWa6sLKoTGGhYXPvUC@dpg-d3lcf7vdiees739agtig-a.oregon-postgres.render.com/cube_kayy";
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' });
+
+const connectionString = process.env.DATABASE_URL 
 if (!connectionString) {
   throw new Error('DATABASE_URL env var is required for PostgreSQL connection');
 }

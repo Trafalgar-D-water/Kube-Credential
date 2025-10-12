@@ -1,8 +1,11 @@
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' });
 
 // Use DATABASE_URL for Postgres, as provided by Render/other PaaS
 // Enable SSL by default for managed Postgres; allow disabling via PGSSLMODE=disable
 const connectionString = process.env.DATABASE_URL
+console.log(connectionString , 'connectionString')
 if (!connectionString) {
     throw new Error('DATABASE_URL env var is required for PostgreSQL connection');
 }

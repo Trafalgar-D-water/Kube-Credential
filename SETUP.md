@@ -76,17 +76,21 @@ Create `.env` files in each service:
 
 **Backend/issuance-service/.env:**
 ```bash
-DATABASE_URL="YOUR_URL"
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/kubecred
 PGSSLMODE=disable
 PORT=8080
+HOSTNAME=local-worker
 ```
 
 **Backend/verification-service/.env:**
 ```bash
-DATABASE_URL="YOUR_URL"
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/kubecred
 PGSSLMODE=disable
 PORT=8081
+HOSTNAME=local-worker
 ```
+
+**Note**: The applications are configured to automatically load `.env` files using `dotenv/config`.
 
 ### 3. Install Dependencies and Run
 
