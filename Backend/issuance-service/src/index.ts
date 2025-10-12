@@ -1,34 +1,40 @@
 import express from 'express';
 import type { Request, Response } from "express"
 import { initializeDatabase } from './database.js'
+import cors from 'cors'; 
 
-const app = express();
+export const app = express();
+app.use(cors());
 app.use(express.json())
+
 
 const PORT = process.env.PORT || 8080;
 const POD_NAME = process.env.HOSTNAME || 'local-worker'
 
+app.get('/health', (_req: Request, res: Response) => {
+    res.status(200).json({ status: 'ok', worker: POD_NAME });
+});
+
 app.post('/issue', async (req: Request, res: Response) => {
     const { employeeId, employeeName, certificationCode, certificationName, issuingManager } = req.body
+    console.log(req.body , 'req.body')
     if (!employeeId || !employeeName || !certificationCode) {
         return res.status(400).json({ message: 'some fileds are missing daa' });
     }
 
     const db = await initializeDatabase();
     try {
-        const sql = `INSERT INTO certifications (employeeId, certificationCode, employeeName, certificationName, issuingManager, issuedBy, timestamp) VALUES (? ,? , ? ,? ,? ,? ,?)`
+        const sql = `INSERT INTO certifications (employeeId, certificationCode, employeeName, certificationName, issuingManager, issuedBy, timestamp) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`
         const timestamp = Date.now()
-        const result = await db.run(sql ,[employeeId, certificationCode, employeeName, certificationName, issuingManager || 'N/A', POD_NAME, timestamp])
-        console.log(result , 'result')
+        const result = await db.query(sql ,[employeeId, certificationCode, employeeName, certificationName, issuingManager || 'N/A', POD_NAME, timestamp])
 
         res.status(201).json({
             message: `credential issued by ${POD_NAME}`,
-            certification: { id: result.lastID, employeeId }
+            certification: { id: result.rows?.[0]?.id, employeeId }
         });
     }
     catch (err: any) {
-        if(err.code === 'SQLITE_CONSTRAINT'){
-
+        if(err?.code === '23505'){
             return res.status(409).json({ message: 'This certification has already been issued to this employee.' });
         }
         res.status(500).json({ message: 'Database error', error: err.message });
@@ -40,6 +46,8 @@ app.get('/', (req, res) => {
     res.send('Hello from the Issuance Service!');
   });
 
-app.listen(PORT, () => {
-    console.log(`Issuance service listening on port ${PORT}`)
-})
+if ((import.meta as any).url === process.argv[1] || (import.meta as any).main) {
+    app.listen(PORT, () => {
+        console.log(`Issuance service listening on port ${PORT}`)
+    })
+}

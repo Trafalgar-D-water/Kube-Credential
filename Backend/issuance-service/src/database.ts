@@ -1,48 +1,33 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-import path from 'path'
-import { fileURLToPath } from 'url';
-import { mkdir } from 'fs/promises'; 
+import { Pool } from 'pg';
 
+// Use DATABASE_URL for Postgres, as provided by Render/other PaaS
+// Enable SSL by default for managed Postgres; allow disabling via PGSSLMODE=disable
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+    throw new Error('DATABASE_URL env var is required for PostgreSQL connection');
+}
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const sslMode = process.env.PGSSLMODE;
+const pool = new Pool({
+    connectionString,
+    ssl: sslMode === 'disable' ? false : { rejectUnauthorized: false }
+});
 
-
-
-// This path points to the shared volume that Kubernetes will provide.
-// const DB_PATH = path.join('/data/certifications.sqlite');
-//local dev -----
-const DB_PATH = path.join(__dirname, '../../data/certifications.sqlite');
-console.log(DB_PATH , 'DB_PATH')
 export async function initializeDatabase() {
-    // Ensure the /data directory exists within the container.
-    try {
-        await mkdir(path.dirname(DB_PATH), { recursive: true });
-    }
-    catch (err) {
-        throw new Error('something went wrong while connecting to db')
-    }
-
-    const db = await open({
-        filename: DB_PATH,
-        driver: sqlite3.Database
-    })
-
-    // if no table present in  db create one >-<
-    await db.exec(`
+    // Create table if it does not exist
+    await pool.query(`
         CREATE TABLE IF NOT EXISTS certifications (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id SERIAL PRIMARY KEY,
           employeeId TEXT NOT NULL,
           certificationCode TEXT NOT NULL,
           employeeName TEXT NOT NULL,
           certificationName TEXT NOT NULL,
           issuingManager TEXT NOT NULL,
           issuedBy TEXT NOT NULL,
-          timestamp INTEGER NOT NULL,
-          UNIQUE(employeeId, certificationCode)
+          timestamp BIGINT NOT NULL,
+          CONSTRAINT unique_employee_cert UNIQUE (employeeId, certificationCode)
         )
-      `);
+    `);
 
-    return db;
+    return pool;
 }

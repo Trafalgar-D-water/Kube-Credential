@@ -1,43 +1,31 @@
-import sqlite3 from 'sqlite3';
-import {open} from 'sqlite';
-import path from 'path'
-import {fileURLToPath} from 'url'
-import { mkdir } from 'fs/promises';
+import { Pool } from 'pg';
 
+const connectionString = process.env.DATABASE_URL || "postgresql://cube_kayy_user:z5iHIZ78gZqFoDjWa6sLKoTGGhYXPvUC@dpg-d3lcf7vdiees739agtig-a.oregon-postgres.render.com/cube_kayy";
+if (!connectionString) {
+  throw new Error('DATABASE_URL env var is required for PostgreSQL connection');
+}
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-
-const DB_PATH = path.join(__dirname , '../../data/certifications.sqlite')
+const sslMode = process.env.PGSSLMODE;
+const pool = new Pool({
+  connectionString,
+  ssl: sslMode === 'disable' ? false : { rejectUnauthorized: false }
+});
 
 export async function initializeDatabase(){
-    try{
-        await mkdir(path.dirname(DB_PATH) , {recursive : true})
-    }
-    catch(err){
-        throw new Error('something went wrong while connecting to db')
-    }
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS certifications (
+      id SERIAL PRIMARY KEY,
+      employeeId TEXT NOT NULL,
+      certificationCode TEXT NOT NULL,
+      employeeName TEXT NOT NULL,
+      certificationName TEXT NOT NULL,
+      issuingManager TEXT NOT NULL,
+      issuedBy TEXT NOT NULL,
+      timestamp BIGINT NOT NULL,
+      CONSTRAINT unique_employee_cert UNIQUE (employeeId, certificationCode)
+    )
+  `);
 
-    const db = await open({
-        filename : DB_PATH,
-        driver : sqlite3.Database
-    })
-
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS certifications (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          employeeId TEXT NOT NULL,
-          certificationCode TEXT NOT NULL,
-          employeeName TEXT NOT NULL,
-          certificationName TEXT NOT NULL,
-          issuingManager TEXT NOT NULL,
-          issuedBy TEXT NOT NULL,
-          timestamp INTEGER NOT NULL,
-          UNIQUE(employeeId, certificationCode)
-        )
-      `);
-
-      return db;
+  return pool;
 }
 
